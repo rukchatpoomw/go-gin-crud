@@ -24,5 +24,16 @@ func GetProduct(id string) (models.Product, error) {
 
 	// if result is nil, return error
 	return models.Product{}, errors.New("product not found")
+}
 
+func CreateProduct(product models.Product) (models.Product, error) {
+	// Simulating unique ID check
+	for _, p := range products {
+		if p.ID == product.ID {
+			return models.Product{}, errors.New("product with the same ID already exists")
+		}
+	}
+
+	products = append(products, product)
+	return product, nil
 }
