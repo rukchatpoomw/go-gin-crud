@@ -1,11 +1,9 @@
 package controllers
 
 import (
-	"fmt"
 	"go-git-crud/models"
 	"go-git-crud/services"
 	"go-git-crud/utils"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -49,14 +47,12 @@ func GetProduct(c *gin.Context) {
 // Create product
 func CreateProduct(c *gin.Context) {
 	var product models.Product
-	fmt.Println("product:", product)
 
 	// Bind JSON to product
 	if err := c.ShouldBindJSON(&product); err != nil {
-		utils.ErrorResponse(c, err.Error())
+		utils.BadRequestResponse(c)
 		return
 	}
-	fmt.Println("product:", product)
 
 	product, err := services.CreateProduct(product)
 	if err != nil {
@@ -72,14 +68,36 @@ func CreateProduct(c *gin.Context) {
 
 // Update product
 func UpdateProduct(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Update Product",
-	})
+	id := c.Param("id")
+	var product models.Product
+	if err := c.ShouldBindJSON(&product); err != nil {
+		utils.BadRequestResponse(c)
+		return
+	}
+
+	products, err := services.UpdateProduct(product, id)
+	if err != nil {
+		if err.Error() == "product not found" {
+			utils.NotFoundResponse(c, err.Error())
+		} else {
+			utils.ErrorResponse(c, err.Error())
+		}
+		return
+	}
+	utils.Response(c, products)
 }
 
 // Delete product
 func DeleteProduct(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Delete Product",
-	})
+	id := c.Param("id")
+	products, err := services.DeleteProduct(id)
+	if err != nil {
+		if err.Error() == "product not found" {
+			utils.NotFoundResponse(c, err.Error())
+		} else {
+			utils.ErrorResponse(c, err.Error())
+		}
+		return
+	}
+	utils.Response(c, products)
 }

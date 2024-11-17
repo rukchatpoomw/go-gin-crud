@@ -31,3 +31,21 @@ func CreateProduct(product models.Product) (models.Product, error) {
 	}
 	return product, nil
 }
+
+// Update product
+func UpdateProduct(product models.Product, id string) ([]models.Product, error) {
+	products, err := repositories.UpdateProduct(product, id)
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}
+
+// Delete product
+func DeleteProduct(id string) ([]models.Product, error) {
+	products, err := repositories.DeleteProduct(id)
+	if err != nil {
+		return nil, err
+	}
+	return products, nil
+}

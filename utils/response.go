@@ -18,6 +18,10 @@ func NotFoundResponse(c *gin.Context, message string) {
 	c.JSON(http.StatusNotFound, gin.H{"error": message})
 }
 
+func BadRequestResponse(c *gin.Context) {
+	c.JSON(http.StatusBadRequest, "Bad Request")
+}
+
 func ErrorResponse(c *gin.Context, message string) {
 	c.JSON(http.StatusInternalServerError, gin.H{"error": message})
 }

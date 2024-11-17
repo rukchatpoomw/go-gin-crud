@@ -27,7 +27,7 @@ func GetProduct(id string) (models.Product, error) {
 }
 
 func CreateProduct(product models.Product) (models.Product, error) {
-	// Simulating unique ID check
+
 	for _, p := range products {
 		if p.ID == product.ID {
 			return models.Product{}, errors.New("product with the same ID already exists")
@@ -36,4 +36,25 @@ func CreateProduct(product models.Product) (models.Product, error) {
 
 	products = append(products, product)
 	return product, nil
+}
+
+func UpdateProduct(product models.Product, id string) ([]models.Product, error) {
+
+	for index, value := range products {
+		if value.ID == id {
+			products[index] = product
+			return products, nil
+		}
+	}
+	return nil, errors.New("product not found")
+}
+
+func DeleteProduct(id string) ([]models.Product, error) {
+	for index, value := range products {
+		if value.ID == id {
+			products = append(products[:index], products[index+1:]...)
+			return products, nil
+		}
+	}
+	return nil, errors.New("product not found")
 }
