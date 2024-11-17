@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"go-git-crud/services"
 	"go-git-crud/utils"
 	"net/http"
@@ -21,9 +20,26 @@ func GetProducts(c *gin.Context) {
 
 func GetProduct(c *gin.Context) {
 	id := c.Param("id")
-	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("Get Product %v", id),
-	})
+	product, err := services.GetProduct(id)
+
+	// Handle error if product not found
+	// if err.Error() == "product not found" {
+	// 	utils.NotFoundResponse(c, err.Error())
+	// 	return
+	// }
+
+	// Handle error if not found item then any error should be handled
+
+	if err != nil {
+		if err.Error() == "product not found" {
+			utils.NotFoundResponse(c, err.Error())
+		} else {
+			utils.ErrorResponse(c, err.Error())
+		}
+		return
+	}
+
+	utils.Response(c, product)
 }
 
 func CreateProduct(c *gin.Context) {

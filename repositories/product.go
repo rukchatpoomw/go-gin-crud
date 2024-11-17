@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"go-git-crud/models"
 )
 
@@ -12,4 +13,16 @@ var products = []models.Product{
 
 func GetProducts() ([]models.Product, error) {
 	return products, nil
+}
+
+func GetProduct(id string) (models.Product, error) {
+	for _, product := range products {
+		if product.ID == id {
+			return product, nil
+		}
+	}
+
+	// if result is nil, return error
+	return models.Product{}, errors.New("product not found")
+
 }
