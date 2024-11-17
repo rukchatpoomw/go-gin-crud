@@ -1,16 +1,22 @@
-package handlers
+package controllers
 
 import (
 	"fmt"
+	"go-git-crud/services"
+	"go-git-crud/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetProducts(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Get Products",
-	})
+	products, err := services.GetProducts()
+	if err != nil {
+		utils.ErrorResponse(c, err.Error())
+		return
+	}
+
+	utils.Response(c, products)
 }
 
 func GetProduct(c *gin.Context) {
