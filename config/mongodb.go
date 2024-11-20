@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func ConnectDB() *mongo.Database {
+func ConnectMongoDB() *mongo.Database {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 

@@ -1,69 +1,35 @@
 package controllers
 
 import (
-	"context"
-	"fmt"
 	"go-git-crud/models"
 	"go-git-crud/services"
 	"go-git-crud/utils"
-	"time"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type ProductControllerType struct {
-	db *mongo.Database
+	service *services.ProductServiceType
 }
 
-func ProductController(db *mongo.Database) *ProductControllerType {
-	return &ProductControllerType{db: db}
+func ProductController(service *services.ProductServiceType) *ProductControllerType {
+	return &ProductControllerType{service: service}
 }
 
 // Get all products
-func (pc *ProductControllerType) GetProducts(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	collection := pc.db.Collection("comments")
-
-	// find all with 10 first items and return all
-	cursor, err := collection.Find(ctx, bson.M{}, options.Find().SetLimit(10))
+func (controller *ProductControllerType) GetProducts(c *gin.Context) {
+	products, err := controller.service.GetProducts()
 	if err != nil {
 		utils.ErrorResponse(c, err.Error())
 		return
 	}
-	defer cursor.Close(ctx)
-
-	var products []models.Product
-	if err = cursor.All(ctx, &products); err != nil {
-		utils.ErrorResponse(c, err.Error())
-		return
-	}
-
-	fmt.Printf("products: %v\n", products)
-
-	// products, err := services.GetProducts(collection)
-	// if err != nil {
-	// 	utils.ErrorResponse(c, err.Error())
-	// 	return
-	// }
-
 	utils.Response(c, products)
 }
 
 // Get product by id
-func GetProduct(c *gin.Context) {
+func (controller *ProductControllerType) GetProduct(c *gin.Context) {
 	id := c.Param("id")
-	product, err := services.GetProduct(id)
-
-	// Handle error if product not found
-	// if err.Error() == "product not found" {
-	// 	utils.NotFoundResponse(c, err.Error())
-	// 	return
-	// }
+	product, err := controller.service.GetProduct(id)
 
 	// Handle error if not found item then any error should be handled
 
@@ -80,7 +46,7 @@ func GetProduct(c *gin.Context) {
 }
 
 // Create product
-func CreateProduct(c *gin.Context) {
+func (controller *ProductControllerType) CreateProduct(c *gin.Context) {
 	var product models.Product
 
 	// Bind JSON to product
@@ -89,16 +55,7 @@ func CreateProduct(c *gin.Context) {
 		return
 	}
 
-	product, err := services.CreateProduct(product)
-	if err != nil {
-		if err.Error() == "product with the same ID already exists" {
-			utils.NotFoundResponse(c, err.Error())
-		} else {
-			utils.ErrorResponse(c, err.Error())
-		}
-		return
-	}
-	utils.Response(c, product)
+	// utils.Response(c, result)
 }
 
 // Update product

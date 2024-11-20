@@ -5,9 +5,17 @@ import (
 	"go-git-crud/repositories"
 )
 
+type ProductServiceType struct {
+	repo *repositories.ProductRepositoryType
+}
+
+func ProductService(repo *repositories.ProductRepositoryType) *ProductServiceType {
+	return &ProductServiceType{repo: repo}
+}
+
 // Get all products
-func GetProducts() ([]models.Product, error) {
-	products, err := repositories.GetProducts()
+func (service *ProductServiceType) GetProducts() ([]models.Product, error) {
+	products, err := service.repo.GetProducts()
 	if err != nil {
 		return nil, err
 	}
@@ -15,8 +23,8 @@ func GetProducts() ([]models.Product, error) {
 }
 
 // Get product by id
-func GetProduct(id string) (models.Product, error) {
-	product, err := repositories.GetProduct(id)
+func (service *ProductServiceType) GetProduct(id string) (models.Product, error) {
+	product, err := service.repo.GetProduct(id)
 	if err != nil {
 		return models.Product{}, err
 	}
