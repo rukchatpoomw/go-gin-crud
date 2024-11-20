@@ -1,20 +1,55 @@
 package controllers
 
 import (
+	"context"
+	"fmt"
 	"go-git-crud/models"
 	"go-git-crud/services"
 	"go-git-crud/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type ProductControllerType struct {
+	db *mongo.Database
+}
+
+func ProductController(db *mongo.Database) *ProductControllerType {
+	return &ProductControllerType{db: db}
+}
+
 // Get all products
-func GetProducts(c *gin.Context) {
-	products, err := services.GetProducts()
+func (pc *ProductControllerType) GetProducts(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := pc.db.Collection("comments")
+
+	// find all with 10 first items and return all
+	cursor, err := collection.Find(ctx, bson.M{}, options.Find().SetLimit(10))
 	if err != nil {
 		utils.ErrorResponse(c, err.Error())
 		return
 	}
+	defer cursor.Close(ctx)
+
+	var products []models.Product
+	if err = cursor.All(ctx, &products); err != nil {
+		utils.ErrorResponse(c, err.Error())
+		return
+	}
+
+	fmt.Printf("products: %v\n", products)
+
+	// products, err := services.GetProducts(collection)
+	// if err != nil {
+	// 	utils.ErrorResponse(c, err.Error())
+	// 	return
+	// }
 
 	utils.Response(c, products)
 }
