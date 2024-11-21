@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"go-git-crud/models"
 
 	"gorm.io/driver/sqlite"
@@ -9,7 +8,7 @@ import (
 )
 
 func ConnectSQLite() *gorm.DB {
-	db, err := gorm.Open(sqlite.Open("sqlite.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(GetEnv("SQLITE_DATABASE", "test.db")), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
 	}
@@ -22,6 +21,5 @@ func ConnectSQLite() *gorm.DB {
 
 	var products []models.Product
 	db.Find(&products)
-	fmt.Printf("products: %v\n", products)
 	return db
 }
