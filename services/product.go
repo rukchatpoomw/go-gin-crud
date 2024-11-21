@@ -32,8 +32,8 @@ func (service *ProductServiceType) GetProduct(id string) (models.Product, error)
 }
 
 // Create product
-func CreateProduct(product models.Product) (models.Product, error) {
-	product, err := repositories.CreateProduct(product)
+func (service *ProductServiceType) CreateProduct(product models.Product) (models.Product, error) {
+	product, err := service.repo.CreateProduct(product)
 	if err != nil {
 		return models.Product{}, err
 	}

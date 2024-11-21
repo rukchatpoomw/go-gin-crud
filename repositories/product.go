@@ -37,15 +37,13 @@ func (repo *ProductRepositoryType) GetProduct(id string) (models.Product, error)
 	return product, nil
 }
 
-func CreateProduct(product models.Product) (models.Product, error) {
+func (repo *ProductRepositoryType) CreateProduct(product models.Product) (models.Product, error) {
+	result := repo.db.Create(&product)
 
-	for _, p := range products {
-		if p.ID == product.ID {
-			return models.Product{}, errors.New("product with the same ID already exists")
-		}
+	if result.Error != nil {
+		return models.Product{}, result.Error
 	}
 
-	products = append(products, product)
 	return product, nil
 }
 

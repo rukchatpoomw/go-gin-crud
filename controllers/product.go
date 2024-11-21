@@ -55,7 +55,13 @@ func (controller *ProductControllerType) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	// utils.Response(c, result)
+	result, err := controller.service.CreateProduct(product)
+	if err != nil {
+		utils.ErrorResponse(c, err.Error())
+		return
+	}
+
+	utils.Response(c, result)
 }
 
 // Update product

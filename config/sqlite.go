@@ -14,12 +14,5 @@ func ConnectSQLite() *gorm.DB {
 	}
 	// Auto Migrate your models
 	db.AutoMigrate(&models.Product{}) // Add your model structs here
-
-	db.Create(&models.Product{Name: "Product 1", Price: 100})
-	db.Create(&models.Product{Name: "Product 2", Price: 200})
-	db.Create(&models.Product{Name: "Product 3", Price: 300})
-
-	var products []models.Product
-	db.Find(&products)
 	return db
 }
