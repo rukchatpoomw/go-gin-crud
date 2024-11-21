@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	"go-git-crud/models"
 
 	"gorm.io/gorm"
@@ -28,6 +29,7 @@ func (repo *ProductRepositoryType) GetProducts() ([]models.Product, error) {
 
 func (repo *ProductRepositoryType) GetProduct(id string) (models.Product, error) {
 	var product models.Product
+	fmt.Printf("id: %v\n", id)
 	result := repo.db.First(&product, id)
 	if result.Error != nil {
 		return models.Product{}, result.Error
