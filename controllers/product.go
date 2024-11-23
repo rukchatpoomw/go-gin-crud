@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"go-git-crud/middleware"
 	"go-git-crud/models"
 	"go-git-crud/services"
 	"go-git-crud/utils"
@@ -19,7 +20,23 @@ func NewProductController(db *gorm.DB) *ProductController {
 
 // Get all products
 func (controller *ProductController) GetProducts(c *gin.Context) {
-	products, err := controller.service.GetProducts()
+	pagination, exists := c.Get("pagination")
+	if !exists {
+		utils.BadRequestResponse(c, "page and limit must be greater than 0")
+		return
+	}
+
+	// Make pagination has a struct
+	paginationQuery, ok := pagination.(middleware.PaginationQuery)
+	if !ok {
+		utils.ErrorResponse(c, "invalid pagination")
+		return
+	}
+
+	// fmt.Println("skip: ", paginationQuery.Limit)
+	// fmt.Println("limit: ", limit)
+
+	products, err := controller.service.GetProducts(paginationQuery)
 	if err != nil {
 		utils.ErrorResponse(c, err.Error())
 		return

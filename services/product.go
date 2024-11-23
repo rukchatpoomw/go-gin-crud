@@ -1,6 +1,7 @@
 package services
 
 import (
+	"go-git-crud/middleware"
 	"go-git-crud/models"
 	"go-git-crud/repositories"
 
@@ -16,8 +17,8 @@ func NewProductService(db *gorm.DB) *ProductService {
 }
 
 // Get all products
-func (service *ProductService) GetProducts() ([]models.Product, error) {
-	products, err := service.repo.GetProducts()
+func (service *ProductService) GetProducts(pagination middleware.PaginationQuery) ([]models.Product, error) {
+	products, err := service.repo.GetProducts(int(pagination.Skip), int(pagination.Limit))
 	if err != nil {
 		return nil, err
 	}

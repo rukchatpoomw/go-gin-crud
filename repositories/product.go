@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	"go-git-crud/models"
 
 	"gorm.io/gorm"
@@ -16,10 +17,13 @@ func NewProductRepository(db *gorm.DB) *ProductRepository {
 	return &ProductRepository{db: db}
 }
 
-func (repo *ProductRepository) GetProducts() ([]models.Product, error) {
+func (repo *ProductRepository) GetProducts(skip int, limit int) ([]models.Product, error) {
+	fmt.Println("skip: ", skip)
+	fmt.Println("limit: ", limit)
 	var products []models.Product
-	// find all products and return all data without soft delete
-	result := repo.db.Find(&products)
+	// Find all products with skip and limit
+	result := repo.db.Offset(skip).Limit(limit).Find(&products)
+	println("result:", result)
 	if result.Error != nil {
 		return nil, result.Error
 	}
