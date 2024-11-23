@@ -1,22 +1,22 @@
 package repositories
 
 import (
-	"fmt"
+	"errors"
 	"go-git-crud/models"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
-type ProductRepositoryType struct {
+type ProductRepository struct {
 	db *gorm.DB
 }
 
-func ProductRepository(db *gorm.DB) *ProductRepositoryType {
-	return &ProductRepositoryType{db: db}
+func NewProductRepository(db *gorm.DB) *ProductRepository {
+	return &ProductRepository{db: db}
 }
 
-func (repo *ProductRepositoryType) GetProducts() ([]models.Product, error) {
+func (repo *ProductRepository) GetProducts() ([]models.Product, error) {
 	var products []models.Product
 	// find all products and return all data without soft delete
 	result := repo.db.Find(&products)
@@ -26,17 +26,18 @@ func (repo *ProductRepositoryType) GetProducts() ([]models.Product, error) {
 	return products, nil
 }
 
-func (repo *ProductRepositoryType) GetProduct(id string) (models.Product, error) {
+func (repo *ProductRepository) GetProduct(id string) (models.Product, error) {
 	var product models.Product
-	fmt.Printf("id: %v\n", id)
+
 	result := repo.db.First(&product, id)
 	if result.Error != nil {
-		return models.Product{}, result.Error
+		// return error with text "product not found"
+		return models.Product{}, errors.New("product not found")
 	}
 	return product, nil
 }
 
-func (repo *ProductRepositoryType) CreateProduct(product models.Product) (models.Product, error) {
+func (repo *ProductRepository) CreateProduct(product models.Product) (models.Product, error) {
 	result := repo.db.Create(&product)
 
 	if result.Error != nil {
@@ -46,7 +47,7 @@ func (repo *ProductRepositoryType) CreateProduct(product models.Product) (models
 	return product, nil
 }
 
-func (repo *ProductRepositoryType) UpdateProduct(product models.Product, id string) (models.Product, error) {
+func (repo *ProductRepository) UpdateProduct(product models.Product, id string) (models.Product, error) {
 	var result models.Product
 
 	// Update product without returning the updated product
@@ -63,7 +64,7 @@ func (repo *ProductRepositoryType) UpdateProduct(product models.Product, id stri
 	return result, nil
 }
 
-func (repo *ProductRepositoryType) DeleteProduct(id string) (models.Product, error) {
+func (repo *ProductRepository) DeleteProduct(id string) (models.Product, error) {
 	var result models.Product
 
 	// Delete product without returning the deleted product

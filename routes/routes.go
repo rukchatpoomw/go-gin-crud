@@ -1,11 +1,9 @@
 package routes
 
 import (
-	"fmt"
 	"go-git-crud/config"
 	"go-git-crud/controllers"
-	"go-git-crud/repositories"
-	"go-git-crud/services"
+	"go-git-crud/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,16 +11,27 @@ import (
 func RegisterRoutes(r *gin.Engine) {
 	config.LoadEnv()
 	mongodb := config.ConnectMongoDB()
-	fmt.Printf("mongodb: %v\n", mongodb)
-	sql := config.ConnectSQLite()
+	sqlite := config.ConnectSQLite()
 
-	productRepo := repositories.ProductRepository(sql)
-	productService := services.ProductService(productRepo)
-	productController := controllers.ProductController(productService)
+	// Product routes (SQLite)
+	productController := controllers.NewProductController(sqlite)
 
-	r.GET("/products", productController.GetProducts)
-	r.GET("/product/:id", productController.GetProduct)
-	r.POST("/product", productController.CreateProduct)
-	r.PUT("/product/:id", productController.UpdateProduct)
-	r.DELETE("/product/:id", productController.DeleteProduct)
+	productRoutes := r.Group("/products")
+	{
+		productRoutes.GET("", middleware.PaginationMiddleware(), productController.GetProducts)
+		productRoutes.GET("/:id", productController.GetProduct)
+		productRoutes.POST("", productController.CreateProduct)
+		productRoutes.PUT("/:id", productController.UpdateProduct)
+		productRoutes.DELETE("/:id", productController.DeleteProduct)
+	}
+
+	mflixController := controllers.NewMflixController(mongodb)
+
+	mflixRoutes := r.Group("/comments")
+	{
+		mflixRoutes.GET("", middleware.PaginationMiddleware(), mflixController.GetMflixs)
+		mflixRoutes.POST("", mflixController.CreateMflix)
+		mflixRoutes.PUT("/:id", mflixController.UpdateMflix)
+		mflixRoutes.DELETE("/:id", mflixController.DeleteMflix)
+	}
 }

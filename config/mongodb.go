@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -16,10 +15,10 @@ func ConnectMongoDB() *mongo.Database {
 	defer cancel()
 
 	// Get MongoDB URI from environment variable
-	mongoURI := os.Getenv("MONGODB_URI")
+	mongoURI := GetEnv("MONGODB_URI")
 	fmt.Println("mongoURI: ", mongoURI)
 	if mongoURI == "" {
-		mongoURI = "mongodb://localhost:27017" // Default URI
+		log.Fatal("MONGODB_URI is not set")
 	}
 
 	// Connect to MongoDB
@@ -34,5 +33,5 @@ func ConnectMongoDB() *mongo.Database {
 		log.Fatal(err)
 	}
 
-	return client.Database("sample_mflix")
+	return client.Database(GetEnv("MONGODB_DATABASE"))
 }

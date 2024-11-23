@@ -6,18 +6,19 @@ import (
 	"go-git-crud/utils"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-type ProductControllerType struct {
-	service *services.ProductServiceType
+type ProductController struct {
+	service *services.ProductService
 }
 
-func ProductController(service *services.ProductServiceType) *ProductControllerType {
-	return &ProductControllerType{service: service}
+func NewProductController(db *gorm.DB) *ProductController {
+	return &ProductController{service: services.NewProductService(db)}
 }
 
 // Get all products
-func (controller *ProductControllerType) GetProducts(c *gin.Context) {
+func (controller *ProductController) GetProducts(c *gin.Context) {
 	products, err := controller.service.GetProducts()
 	if err != nil {
 		utils.ErrorResponse(c, err.Error())
@@ -27,7 +28,7 @@ func (controller *ProductControllerType) GetProducts(c *gin.Context) {
 }
 
 // Get product by id
-func (controller *ProductControllerType) GetProduct(c *gin.Context) {
+func (controller *ProductController) GetProduct(c *gin.Context) {
 	id := c.Param("id")
 	product, err := controller.service.GetProduct(id)
 
@@ -46,7 +47,7 @@ func (controller *ProductControllerType) GetProduct(c *gin.Context) {
 }
 
 // Create product
-func (controller *ProductControllerType) CreateProduct(c *gin.Context) {
+func (controller *ProductController) CreateProduct(c *gin.Context) {
 	var product models.Product
 
 	// Bind JSON to product
@@ -65,7 +66,7 @@ func (controller *ProductControllerType) CreateProduct(c *gin.Context) {
 }
 
 // Update product
-func (controller *ProductControllerType) UpdateProduct(c *gin.Context) {
+func (controller *ProductController) UpdateProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
@@ -86,7 +87,7 @@ func (controller *ProductControllerType) UpdateProduct(c *gin.Context) {
 }
 
 // Delete product
-func (controller *ProductControllerType) DeleteProduct(c *gin.Context) {
+func (controller *ProductController) DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
 	_, err := controller.service.DeleteProduct(id)
 	if err != nil {

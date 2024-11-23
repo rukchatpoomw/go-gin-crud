@@ -3,18 +3,20 @@ package services
 import (
 	"go-git-crud/models"
 	"go-git-crud/repositories"
+
+	"gorm.io/gorm"
 )
 
-type ProductServiceType struct {
-	repo *repositories.ProductRepositoryType
+type ProductService struct {
+	repo *repositories.ProductRepository
 }
 
-func ProductService(repo *repositories.ProductRepositoryType) *ProductServiceType {
-	return &ProductServiceType{repo: repo}
+func NewProductService(db *gorm.DB) *ProductService {
+	return &ProductService{repo: repositories.NewProductRepository(db)}
 }
 
 // Get all products
-func (service *ProductServiceType) GetProducts() ([]models.Product, error) {
+func (service *ProductService) GetProducts() ([]models.Product, error) {
 	products, err := service.repo.GetProducts()
 	if err != nil {
 		return nil, err
@@ -23,7 +25,7 @@ func (service *ProductServiceType) GetProducts() ([]models.Product, error) {
 }
 
 // Get product by id
-func (service *ProductServiceType) GetProduct(id string) (models.Product, error) {
+func (service *ProductService) GetProduct(id string) (models.Product, error) {
 	product, err := service.repo.GetProduct(id)
 	if err != nil {
 		return models.Product{}, err
@@ -32,7 +34,7 @@ func (service *ProductServiceType) GetProduct(id string) (models.Product, error)
 }
 
 // Create product
-func (service *ProductServiceType) CreateProduct(product models.Product) (models.Product, error) {
+func (service *ProductService) CreateProduct(product models.Product) (models.Product, error) {
 	product, err := service.repo.CreateProduct(product)
 	if err != nil {
 		return models.Product{}, err
@@ -41,7 +43,7 @@ func (service *ProductServiceType) CreateProduct(product models.Product) (models
 }
 
 // Update product
-func (service *ProductServiceType) UpdateProduct(product models.Product, id string) (models.Product, error) {
+func (service *ProductService) UpdateProduct(product models.Product, id string) (models.Product, error) {
 	products, err := service.repo.UpdateProduct(product, id)
 	if err != nil {
 		return models.Product{}, err
@@ -50,7 +52,7 @@ func (service *ProductServiceType) UpdateProduct(product models.Product, id stri
 }
 
 // Delete product
-func (service *ProductServiceType) DeleteProduct(id string) (models.Product, error) {
+func (service *ProductService) DeleteProduct(id string) (models.Product, error) {
 	products, err := service.repo.DeleteProduct(id)
 	if err != nil {
 		return models.Product{}, err

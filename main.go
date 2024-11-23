@@ -10,6 +10,6 @@ import (
 func main() {
 	r := gin.Default()
 	routes.RegisterRoutes(r)
-	port := config.GetEnv("PORT", "8000")
+	port := config.GetEnv("PORT")
 	r.Run(":" + port)
 }
