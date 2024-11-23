@@ -10,6 +10,10 @@ func Response(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, data)
 }
 
+func DeleteResponse(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{"message": "Deleted Successfully"})
+}
+
 func ResponseWithMessage(c *gin.Context, message string) {
 	c.JSON(http.StatusOK, gin.H{"message": message})
 }

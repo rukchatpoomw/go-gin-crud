@@ -41,19 +41,19 @@ func (service *ProductServiceType) CreateProduct(product models.Product) (models
 }
 
 // Update product
-func UpdateProduct(product models.Product, id string) ([]models.Product, error) {
-	products, err := repositories.UpdateProduct(product, id)
+func (service *ProductServiceType) UpdateProduct(product models.Product, id string) (models.Product, error) {
+	products, err := service.repo.UpdateProduct(product, id)
 	if err != nil {
-		return nil, err
+		return models.Product{}, err
 	}
 	return products, nil
 }
 
 // Delete product
-func DeleteProduct(id string) ([]models.Product, error) {
-	products, err := repositories.DeleteProduct(id)
+func (service *ProductServiceType) DeleteProduct(id string) (models.Product, error) {
+	products, err := service.repo.DeleteProduct(id)
 	if err != nil {
-		return nil, err
+		return models.Product{}, err
 	}
 	return products, nil
 }

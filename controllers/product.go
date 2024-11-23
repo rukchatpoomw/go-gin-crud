@@ -65,7 +65,7 @@ func (controller *ProductControllerType) CreateProduct(c *gin.Context) {
 }
 
 // Update product
-func UpdateProduct(c *gin.Context) {
+func (controller *ProductControllerType) UpdateProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product models.Product
 	if err := c.ShouldBindJSON(&product); err != nil {
@@ -73,7 +73,7 @@ func UpdateProduct(c *gin.Context) {
 		return
 	}
 
-	products, err := services.UpdateProduct(product, id)
+	products, err := controller.service.UpdateProduct(product, id)
 	if err != nil {
 		if err.Error() == "product not found" {
 			utils.NotFoundResponse(c, err.Error())
@@ -86,9 +86,9 @@ func UpdateProduct(c *gin.Context) {
 }
 
 // Delete product
-func DeleteProduct(c *gin.Context) {
+func (controller *ProductControllerType) DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
-	products, err := services.DeleteProduct(id)
+	_, err := controller.service.DeleteProduct(id)
 	if err != nil {
 		if err.Error() == "product not found" {
 			utils.NotFoundResponse(c, err.Error())
@@ -97,5 +97,5 @@ func DeleteProduct(c *gin.Context) {
 		}
 		return
 	}
-	utils.Response(c, products)
+	utils.DeleteResponse(c)
 }
