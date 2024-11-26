@@ -5,6 +5,7 @@ import (
 	"go-git-crud/models"
 	"go-git-crud/services"
 	"go-git-crud/utils"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -33,9 +34,6 @@ func (controller *ProductController) GetProducts(c *gin.Context) {
 		return
 	}
 
-	// fmt.Println("skip: ", paginationQuery.Limit)
-	// fmt.Println("limit: ", limit)
-
 	products, err := controller.service.GetProducts(paginationQuery)
 	if err != nil {
 		utils.ErrorResponse(c, err.Error())
@@ -48,72 +46,87 @@ func (controller *ProductController) GetProducts(c *gin.Context) {
 func (controller *ProductController) GetProduct(c *gin.Context) {
 	id := c.Param("id")
 	product, err := controller.service.GetProduct(id)
-
-	// Handle error if not found item then any error should be handled
-
 	if err != nil {
 		if err.Error() == "product not found" {
-			utils.NotFoundResponse(c, err.Error())
-		} else {
-			utils.ErrorResponse(c, err.Error())
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
 		}
+		utils.ErrorResponse(c, err.Error())
 		return
 	}
-
 	utils.Response(c, product)
 }
 
 // Create product
 func (controller *ProductController) CreateProduct(c *gin.Context) {
 	var product models.Product
-
-	// Bind JSON to product
 	if err := c.ShouldBindJSON(&product); err != nil {
-		utils.BadRequestResponse(c)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	result, err := controller.service.CreateProduct(product)
+	// Validate product
+	if product.Name == "" || product.Price <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid product data"})
+		return
+	}
+
+	createdProduct, err := controller.service.CreateProduct(product)
 	if err != nil {
 		utils.ErrorResponse(c, err.Error())
 		return
 	}
-
-	utils.Response(c, result)
+	utils.Response(c, createdProduct)
 }
 
 // Update product
 func (controller *ProductController) UpdateProduct(c *gin.Context) {
 	id := c.Param("id")
 	var product models.Product
+
 	if err := c.ShouldBindJSON(&product); err != nil {
-		utils.BadRequestResponse(c)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	products, err := controller.service.UpdateProduct(product, id)
+	// Check if product exists
+	_, err := controller.service.GetProduct(id)
 	if err != nil {
 		if err.Error() == "product not found" {
-			utils.NotFoundResponse(c, err.Error())
-		} else {
-			utils.ErrorResponse(c, err.Error())
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
 		}
+		utils.ErrorResponse(c, err.Error())
 		return
 	}
-	utils.Response(c, products)
+
+	updatedProduct, err := controller.service.UpdateProduct(product, id)
+	if err != nil {
+		utils.ErrorResponse(c, err.Error())
+		return
+	}
+	utils.Response(c, updatedProduct)
 }
 
 // Delete product
 func (controller *ProductController) DeleteProduct(c *gin.Context) {
 	id := c.Param("id")
-	_, err := controller.service.DeleteProduct(id)
+
+	// Check if product exists
+	_, err := controller.service.GetProduct(id)
 	if err != nil {
 		if err.Error() == "product not found" {
-			utils.NotFoundResponse(c, err.Error())
-		} else {
-			utils.ErrorResponse(c, err.Error())
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
 		}
+		utils.ErrorResponse(c, err.Error())
 		return
 	}
-	utils.DeleteResponse(c)
+
+	deletedProduct, err := controller.service.DeleteProduct(id)
+	if err != nil {
+		utils.ErrorResponse(c, err.Error())
+		return
+	}
+	utils.Response(c, deletedProduct)
 }
